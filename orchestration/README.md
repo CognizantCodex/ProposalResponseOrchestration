@@ -20,10 +20,9 @@ $env:OPENAI_API_KEY = "your-project-key"
 python -m orchestration.cli --account WellsFargo --file "RFP/WellsFargo/sample-rfp.pdf"
 ```
 
-The run writes `data/rfp_progress.xlsx` and one JSON state file under `data/runs/`.
+The run writes `data/RFP_Status_Tracker.xlsx` and one JSON state file under `data/runs/`. The ReceiverAgent also accepts a GitHub blob URL (for example, the Bank 1 DOCX on the `develop` branch). To expose the dashboard event bridge, run `python -m orchestration.http_server --port 8000` and set the dashboard's `VITE_AGENT_API_BASE` to that URL.
 
 ## Safety and review boundary
 
 Outputs are working drafts. Human owners must review requirement coverage, ownership, evidence, commercial terms, and all customer commitments before anything is shared or submitted.
-
 
