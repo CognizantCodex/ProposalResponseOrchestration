@@ -1,0 +1,283 @@
+{
+  "info": {
+    "_postman_id": "bb5eb56d-03f2-4b88-94c6-7f32195b38cc",
+    "name": "Proposal Response Orchestration API",
+    "description": "Requests and assertions for the Proposal Response Orchestration HTTP API. Start the service from the repository root with `python -m orchestration.http_server --port 8000`, then run the requests in order. The successful creation request saves its returned `run_id` into the collection variable used by the status request.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    },
+    {
+      "key": "runId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unknownRunId",
+      "value": "00000000-0000-4000-8000-000000000000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Run creation",
+      "item": [
+        {
+          "name": "Successful run creation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account\": \"Bank 1\",\n  \"source_path\": \"sample-data/rfps/mock-01-cloud-migration.md\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/runs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "runs"
+              ]
+            },
+            "description": "Creates an asynchronous orchestration run from a valid synthetic RFP file. Saves the returned run ID for the status request."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns HTTP 202', function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "pm.test('Returns a UUID run ID and STARTED status', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('status', 'STARTED');",
+                  "    pm.expect(body).to.have.property('run_id');",
+                  "    pm.expect(body.run_id).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);",
+                  "    pm.collectionVariables.set('runId', body.run_id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source_path\": \"sample-data/rfps/mock-01-cloud-migration.md\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/runs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "runs"
+              ]
+            },
+            "description": "Verifies request validation when the required account field is missing."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns an error without creating a run', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body).not.to.have.property('run_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Malformed JSON",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account\": \"Bank 1\",\n  \"source_path\":\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/runs",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "runs"
+              ]
+            },
+            "description": "Verifies request validation when the body is not valid JSON."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns HTTP 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns a parse error without a run ID', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body).not.to.have.property('run_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Run status",
+      "item": [
+        {
+          "name": "Retrieve created run status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/runs/{{runId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "runs",
+                "{{runId}}"
+              ]
+            },
+            "description": "Retrieves the state saved for the run created by the successful request. Run the successful creation request first. Because processing is asynchronous, the returned status may be in progress or terminal."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.collectionVariables.get('runId')) {",
+                  "    throw new Error('Run Successful run creation first so runId is populated.');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns HTTP 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns state for the requested run', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.run_id).to.eql(pm.collectionVariables.get('runId'));",
+                  "    pm.expect(body.account).to.eql('Bank 1');",
+                  "    pm.expect(body.status).to.be.a('string').and.not.empty;",
+                  "    pm.expect(body.events).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown run ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/runs/{{unknownRunId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "runs",
+                "{{unknownRunId}}"
+              ]
+            },
+            "description": "Verifies the not-found response for a syntactically valid UUID that does not identify a stored run."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Returns HTTP 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Returns the expected not-found error', function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.deep.eql({ error: 'Run not found' });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
