@@ -1,0 +1,9 @@
+# Team Prompts
+
+This file consolidates prompts recorded by the team across feature branches.
+
+## RFP Processor
+
+**Source:** `RFPprocessor/Prompt.md`
+
+> Can you please create the page Service Line Mapping that will help in uploading the attached excel and saving the data to the database. Once the user upload the same excel again then it should replace the same. Backend API should be Python and fall back as Node APIs. Front end will be react JS. I want my unit test cases to be 90% for both API and Frontend. I want my architecture to be component based architecture and modular. Similarly I want my API's to follow microservices pattern
