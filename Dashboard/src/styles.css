@@ -146,7 +146,7 @@ main { max-width: 1240px; margin: -22px auto 0; padding: 0 24px 70px; position: 
 .document-message--error { color: #9b4318; background: #fff8f3; border-color: #f1c7ad; }
 .document-list { display: grid; gap: 10px; }
 .document-row {
-  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 14px;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto; align-items: center; gap: 14px;
   padding: 14px; border: 1px solid #e0e7ef; border-radius: 10px; background: #fbfcfe;
 }
 .file-badge {
@@ -159,6 +159,13 @@ main { max-width: 1240px; margin: -22px auto 0; padding: 0 24px 70px; position: 
 .document-row a { color: var(--blue); font-size: 12px; font-weight: 750; text-decoration: none; }
 .document-row a:hover { text-decoration: underline; }
 .document-row .download-link { color: #4d28a7; }
+.document-row .agent-button {
+  border: 0; border-radius: 8px; padding: 9px 12px; cursor: pointer;
+  color: #fff; background: #28206e; font-size: 11px; font-weight: 800;
+}
+.document-row .agent-button:hover:not(:disabled) { background: #423199; }
+.document-row .agent-button:disabled { cursor: default; background: #7b8396; }
+.agent-status { color: #1d7b4d !important; font-weight: 750; }
 
 .rfp-section { padding-top: 52px; }
 .section-heading--plain { padding: 0 4px; }
@@ -224,7 +231,7 @@ footer button:hover { background: #423199; }
   .search { width: 100%; }
   .account-fields, .service-grid, .rfp-facts { grid-template-columns: 1fr; }
   .document-row { grid-template-columns: auto minmax(0, 1fr); }
-  .document-row a { grid-column: 2; }
+  .document-row a, .document-row .agent-button { grid-column: 2; justify-self: start; }
   .rfp-facts { gap: 1px; }
   footer { flex-wrap: wrap; padding: 20px; }
   footer button { margin-left: 0; }

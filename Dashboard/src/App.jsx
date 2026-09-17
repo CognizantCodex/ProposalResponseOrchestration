@@ -139,6 +139,7 @@ export default function App() {
   const [notice, setNotice] = useState("");
   const [documents, setDocuments] = useState([]);
   const [documentsState, setDocumentsState] = useState("loading");
+  const [agentRuns, setAgentRuns] = useState({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -173,6 +174,15 @@ export default function App() {
       .toLowerCase()
       .includes(query.toLowerCase()),
   );
+
+  const runAgentReceiver = (document) => {
+    setAgentRuns((current) => ({ ...current, [document.sha]: "started" }));
+    window.dispatchEvent(
+      new CustomEvent("agent-receiver:run", {
+        detail: { account, document },
+      }),
+    );
+  };
 
   const saveDraft = () => {
     const payload = { account, winzoneId, choices, savedAt: new Date().toISOString() };
@@ -236,7 +246,7 @@ export default function App() {
                 step="1"
                 value={winzoneId}
                 onChange={(event) => setWinzoneId(event.target.value)}
-                placeholder="Enter integer ID"
+                placeholder="Enter Winzone ID"
               />
               <small>Validation will be connected in a later release.</small>
             </label>
@@ -279,9 +289,20 @@ export default function App() {
                   <div className="document-copy">
                     <strong>{document.name}</strong>
                     <span>{formatBytes(document.size)} · Customer RFP Documentation</span>
+                    {agentRuns[document.sha] && (
+                      <span className="agent-status" role="status">Agent Receiver started</span>
+                    )}
                   </div>
                   <a href={document.html_url} target="_blank" rel="noreferrer">View file</a>
                   <a className="download-link" href={document.download_url} target="_blank" rel="noreferrer">Download</a>
+                  <button
+                    className="agent-button"
+                    type="button"
+                    onClick={() => runAgentReceiver(document)}
+                    disabled={Boolean(agentRuns[document.sha])}
+                  >
+                    {agentRuns[document.sha] ? "Agent Running" : "Run Agent Receiver"}
+                  </button>
                 </article>
               ))}
             </div>
