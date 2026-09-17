@@ -412,7 +412,6 @@ export default function App() {
                       <span className="agent-status" role="status">Agent Receiver started</span>
                     )}
                   </div>
-                  <a href={document.html_url} target="_blank" rel="noreferrer">View file</a>
                   <a className="download-link" href={document.download_url} target="_blank" rel="noreferrer">Download</a>
                   <button
                     className="agent-button"
