@@ -234,7 +234,6 @@ export default function App() {
               <select value={account} onChange={(event) => setAccount(event.target.value)} required>
                 {accounts.map((name) => <option key={name}>{name}</option>)}
               </select>
-              <small>Loaded from AccountList.md / AccountsList.md</small>
             </label>
 
             <label className="field">
