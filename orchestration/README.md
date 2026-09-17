@@ -1,6 +1,6 @@
 # RFP Agent Orchestration
 
-This package implements the MVP workflow in `problem.md`:
+This package implements the MVP workflow in `Problem.md`:
 
 1. `ReceiverAgent` validates and extracts the RFP, computes a SHA-256 fingerprint, rejects duplicates, and records progress in Excel.
 2. `AgentOrchestrator` owns state, routing, retries, failure handling, and the durable run log.
