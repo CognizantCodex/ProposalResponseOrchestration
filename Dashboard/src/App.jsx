@@ -146,6 +146,8 @@ export default function App() {
   const [bu, setBu] = useState(Object.keys(businessUnits)[0]);
   const [sbu, setSbu] = useState(businessUnits[Object.keys(businessUnits)[0]][0]);
   const [account, setAccount] = useState(accounts[0] || "");
+  const [cp, setCp] = useState("");
+  const [crm, setCrm] = useState("");
   const [winzoneId, setWinzoneId] = useState("");
   const [query, setQuery] = useState("");
   const [choices, setChoices] = useState({});
@@ -204,7 +206,7 @@ export default function App() {
   };
 
   const saveDraft = () => {
-    const payload = { bu, sbu, account, winzoneId, choices, savedAt: new Date().toISOString() };
+    const payload = { bu, sbu, account, cp, crm, winzoneId, choices, savedAt: new Date().toISOString() };
     localStorage.setItem("bcm-sls-rfp-draft", JSON.stringify(payload));
     setNotice("Draft saved in this browser.");
     window.setTimeout(() => setNotice(""), 2800);
@@ -267,6 +269,26 @@ export default function App() {
               <select value={account} onChange={(event) => setAccount(event.target.value)} required>
                 {accounts.map((name) => <option key={name}>{name}</option>)}
               </select>
+            </label>
+
+            <label className="field">
+              <span>CP</span>
+              <input
+                type="text"
+                value={cp}
+                onChange={(event) => setCp(event.target.value)}
+                placeholder="Enter CP"
+              />
+            </label>
+
+            <label className="field">
+              <span>CRM</span>
+              <input
+                type="text"
+                value={crm}
+                onChange={(event) => setCrm(event.target.value)}
+                placeholder="Enter CRM"
+              />
             </label>
 
             <label className="field">
