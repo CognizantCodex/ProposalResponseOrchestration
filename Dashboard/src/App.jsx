@@ -4,7 +4,7 @@ import accountsListMarkdown from "../AccountsList.md?raw";
 import rfpMarkdown from "../RFPStatus.md?raw";
 
 const serviceLines = ["DE", "QEA", "ADM"];
-const otherServiceLines = ["CIS", "IPM", "AIA"];
+const otherServiceLines = ["CIS", "AIA", "Moment", "Others"];
 const documentsApi =
   "https://api.github.com/repos/CognizantCodex/ProposalResponseOrchestration/contents/Customer%20RFP%20Documentation?ref=develop";
 
@@ -60,11 +60,18 @@ function StatusPill({ status }) {
 
 function RfpCard({ rfp, selection, onChange }) {
   const selected = selection?.serviceLines || [];
+  const selectedOther = selection?.otherServiceLines || [];
   const toggle = (line) => {
     const next = selected.includes(line)
       ? selected.filter((item) => item !== line)
       : [...selected, line];
     onChange({ ...selection, serviceLines: next });
+  };
+  const toggleOther = (line) => {
+    const next = selectedOther.includes(line)
+      ? selectedOther.filter((item) => item !== line)
+      : [...selectedOther, line];
+    onChange({ ...selection, otherServiceLines: next });
   };
 
   return (
@@ -102,16 +109,21 @@ function RfpCard({ rfp, selection, onChange }) {
           </div>
         </fieldset>
 
-        <label className="field">
-          <span>Other service line</span>
-          <select
-            value={selection?.other || ""}
-            onChange={(event) => onChange({ ...selection, other: event.target.value })}
-          >
-            <option value="">Select a service line</option>
-            {otherServiceLines.map((line) => <option key={line}>{line}</option>)}
-          </select>
-        </label>
+        <fieldset>
+          <legend>Other service lines</legend>
+          <div className="checkboxes checkboxes--wrap">
+            {otherServiceLines.map((line) => (
+              <label className="check" key={line}>
+                <input
+                  type="checkbox"
+                  checked={selectedOther.includes(line)}
+                  onChange={() => toggleOther(line)}
+                />
+                <span>{line}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
       </div>
     </article>
   );

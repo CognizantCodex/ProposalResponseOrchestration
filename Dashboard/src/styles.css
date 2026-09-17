@@ -188,6 +188,7 @@ main { max-width: 1240px; margin: -22px auto 0; padding: 0 24px 70px; position: 
 fieldset { margin: 0; padding: 0; border: 0; }
 legend, .field > span { margin-bottom: 8px; color: #31314e; font-size: 12px; font-weight: 750; }
 .checkboxes { display: flex; gap: 9px; }
+.checkboxes--wrap { flex-wrap: wrap; }
 .check { position: relative; cursor: pointer; }
 .check input { position: absolute; opacity: 0; }
 .check span {
