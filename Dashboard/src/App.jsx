@@ -1,10 +1,28 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import accountListMarkdown from "../AccountList.md?raw";
 import accountsListMarkdown from "../AccountsList.md?raw";
 import rfpMarkdown from "../RFPStatus.md?raw";
 
 const serviceLines = ["DE", "QEA", "ADM"];
 const otherServiceLines = ["CIS", "IPM", "AIA"];
+const documentsApi =
+  "https://api.github.com/repos/CognizantCodex/ProposalResponseOrchestration/contents/Customer%20RFP%20Documentation?ref=develop";
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function fileType(name) {
+  return name.split(".").pop()?.toUpperCase() || "FILE";
+}
+
+function matchesAccount(name, account) {
+  const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normalizedAccount = account.toLowerCase().replace(/[^a-z0-9]/g, "");
+  return normalizedAccount && normalizedName.includes(normalizedAccount);
+}
 
 function parseList(markdown) {
   return markdown
@@ -110,6 +128,34 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [choices, setChoices] = useState({});
   const [notice, setNotice] = useState("");
+  const [documents, setDocuments] = useState([]);
+  const [documentsState, setDocumentsState] = useState("loading");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setDocumentsState("loading");
+
+    fetch(documentsApi, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Repository documents could not be loaded.");
+        return response.json();
+      })
+      .then((items) => {
+        const matches = items
+          .filter((item) => item.type === "file" && item.name !== ".gitkeep")
+          .filter((item) => matchesAccount(item.name, account));
+        setDocuments(matches);
+        setDocumentsState("ready");
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          setDocuments([]);
+          setDocumentsState("error");
+        }
+      });
+
+    return () => controller.abort();
+  }, [account]);
 
   const visibleRfps = rfps.filter((rfp) =>
     [rfp["RFP Name"], rfp["RFP Description"], rfp.Status]
@@ -187,10 +233,55 @@ export default function App() {
           </div>
         </section>
 
+        <section className="documents-section panel" aria-labelledby="documents-heading">
+          <div className="section-heading">
+            <div>
+              <span className="step">02</span>
+              <div>
+                <p className="eyebrow">Repository documents</p>
+                <h2 id="documents-heading">{account} files</h2>
+              </div>
+            </div>
+            <a
+              className="folder-link"
+              href="https://github.com/CognizantCodex/ProposalResponseOrchestration/tree/develop/Customer%20RFP%20Documentation"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Open repository folder
+            </a>
+          </div>
+
+          {documentsState === "loading" && <p className="document-message">Loading files for {account}…</p>}
+          {documentsState === "error" && (
+            <p className="document-message document-message--error">
+              Files could not be loaded. Open the repository folder to view them directly.
+            </p>
+          )}
+          {documentsState === "ready" && documents.length === 0 && (
+            <p className="document-message">No customer RFP documentation is available for {account}.</p>
+          )}
+          {documentsState === "ready" && documents.length > 0 && (
+            <div className="document-list">
+              {documents.map((document) => (
+                <article className="document-row" key={document.sha}>
+                  <span className="file-badge">{fileType(document.name)}</span>
+                  <div className="document-copy">
+                    <strong>{document.name}</strong>
+                    <span>{formatBytes(document.size)} · Customer RFP Documentation</span>
+                  </div>
+                  <a href={document.html_url} target="_blank" rel="noreferrer">View file</a>
+                  <a className="download-link" href={document.download_url} target="_blank" rel="noreferrer">Download</a>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section className="rfp-section" id="opportunities" aria-labelledby="rfp-heading">
           <div className="section-heading section-heading--plain">
             <div>
-              <span className="step">02</span>
+              <span className="step">03</span>
               <div><p className="eyebrow">Secondary group</p><h2 id="rfp-heading">RFP portfolio</h2></div>
             </div>
             <label className="search">

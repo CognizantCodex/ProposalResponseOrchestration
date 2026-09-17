@@ -18,6 +18,10 @@ Build for production with `npm run build`.
 
 The Markdown files are imported as raw text and parsed in the browser. Keep their current list/table structures when replacing the sample data.
 
+## Customer RFP documentation
+
+Selecting an account loads matching files live from the repository's `Customer RFP Documentation` folder. File names must include the account name (case and punctuation are ignored). Matching files expose GitHub view and download links.
+
 ## Behavior
 
 - Winzone ID accepts integers and is intentionally not externally validated yet.
