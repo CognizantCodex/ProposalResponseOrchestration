@@ -372,7 +372,7 @@ Each increment must include:
 
 ## Related documentation
 
-- [Architecture](Architecture.md)
+- [Architecture](ARCHITECTURE.md)
 - [Orchestration setup](orchestration/README.md)
 - [Required inputs and production dependencies](orchestration/INPUTS.md)
 - [RFP stage definitions](Customer%20RFP%20Documentation/RFPStatus.md)
