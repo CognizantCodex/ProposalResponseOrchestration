@@ -20,7 +20,7 @@ The Markdown files are imported as raw text and parsed in the browser. Keep thei
 
 ## Customer RFP documentation
 
-Selecting an account loads matching files live from the repository's `Customer RFP Documentation` folder. File names must include the account name (case and punctuation are ignored). Matching files expose GitHub view and download links.
+Selecting an account loads files live from its corresponding subfolder under `Customer RFP Documentation` (for example, `Customer RFP Documentation/Bank 1`). Files do not need to repeat the account name. Each file exposes GitHub view and download links.
 
 ## Behavior
 

@@ -5,8 +5,10 @@ import rfpMarkdown from "../RFPStatus.md?raw";
 
 const serviceLines = ["DE", "QEA", "ADM"];
 const otherServiceLines = ["CIS", "AIA", "Moment", "Others"];
-const documentsApi =
-  "https://api.github.com/repos/CognizantCodex/ProposalResponseOrchestration/contents/Customer%20RFP%20Documentation?ref=develop";
+const documentsApiBase =
+  "https://api.github.com/repos/CognizantCodex/ProposalResponseOrchestration/contents/Customer%20RFP%20Documentation";
+const documentsWebBase =
+  "https://github.com/CognizantCodex/ProposalResponseOrchestration/tree/develop/Customer%20RFP%20Documentation";
 
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -18,11 +20,6 @@ function fileType(name) {
   return name.split(".").pop()?.toUpperCase() || "FILE";
 }
 
-function matchesAccount(name, account) {
-  const normalizedName = name.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const normalizedAccount = account.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return normalizedAccount && normalizedName.includes(normalizedAccount);
-}
 
 function parseList(markdown) {
   return markdown
@@ -147,16 +144,17 @@ export default function App() {
     const controller = new AbortController();
     setDocumentsState("loading");
 
-    fetch(documentsApi, { signal: controller.signal })
+    const selectedFolderApi = `${documentsApiBase}/${encodeURIComponent(account)}?ref=develop`;
+    fetch(selectedFolderApi, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error("Repository documents could not be loaded.");
         return response.json();
       })
       .then((items) => {
-        const matches = items
-          .filter((item) => item.type === "file" && item.name !== ".gitkeep")
-          .filter((item) => matchesAccount(item.name, account));
-        setDocuments(matches);
+        const files = items.filter(
+          (item) => item.type === "file" && item.name !== ".gitkeep",
+        );
+        setDocuments(files);
         setDocumentsState("ready");
       })
       .catch((error) => {
@@ -256,7 +254,7 @@ export default function App() {
             </div>
             <a
               className="folder-link"
-              href="https://github.com/CognizantCodex/ProposalResponseOrchestration/tree/develop/Customer%20RFP%20Documentation"
+              href={`${documentsWebBase}/${encodeURIComponent(account)}`}
               target="_blank"
               rel="noreferrer"
             >
