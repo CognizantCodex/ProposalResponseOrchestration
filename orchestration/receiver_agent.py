@@ -66,7 +66,8 @@ class ReceiverAgent:
     def create_customer_workspace(self, *, account: str, metadata: RfpMetadata) -> Path | None:
         """Create the per-RFP collaboration folders for Bank 1 after intake."""
         normalized = re.sub(r"\s+", "", account).casefold()
-        if normalized != "bank1":
+        source_segments = [re.sub(r"\s+", "", unquote(part)).casefold() for part in urlparse(metadata.source_path).path.split("/") if part]
+        if normalized != "bank1" and "bank1" not in source_segments:
             return None
         folder_name = re.sub(r'[<>:"/\\|?*]', "-", Path(metadata.file_name).stem).strip(" .") or "Untitled RFP"
         workspace = self.customer_rfp_root / "Bank 1" / folder_name
