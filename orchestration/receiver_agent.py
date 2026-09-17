@@ -50,6 +50,8 @@ class ReceiverAgent:
         if duplicate_of:
             # The first intake row is the immutable registration for this file.
             # Replays are rejected without appending a second row.
+            if temporary:
+                temporary.unlink(missing_ok=True)
             raise DuplicateRfpError(metadata)
         self.tracker.insert({"Run ID": run_id, "Account": account, "File Name": metadata.file_name, "Source Path": source_ref, "SHA-256": digest, "Received At": metadata.ingested_at, "Status": "VALIDATED", "Current Agent": "receiver", "Duplicate Of": "", "Error": ""})
         if temporary:
