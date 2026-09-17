@@ -1,0 +1,436 @@
+{
+  "schema_version": "1.0",
+  "description": "Twenty mock records for the Proposal Response Orchestration REST endpoint.",
+  "base_url": "http://127.0.0.1:8000",
+  "prerequisites": [
+    "Start the API with python -m orchestration.http_server --port 8000.",
+    "Set OPENAI_API_KEY and OPENAI_MODEL for MR-001 through MR-015.",
+    "Execute MR-001 before MR-016 using the same tracker.",
+    "Poll GET /runs/{run_id} after any 202 response until a terminal status is returned."
+  ],
+  "records": [
+    {
+      "id": "MR-001",
+      "name": "Successful Cloud Migration intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 1",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-01-cloud-migration.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Cloud migration",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-002",
+      "name": "Successful Application Modernization intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 2",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-02-application-modernization.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Application modernization",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-003",
+      "name": "Successful Quality Engineering Automation intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 3",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-03-qea-automation.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to QEA automation",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-004",
+      "name": "Successful AI and Analytics intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 4",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-04-ai-analytics.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to AI and analytics",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-005",
+      "name": "Successful Infrastructure Transformation intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 5",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-05-infrastructure.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Infrastructure",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-006",
+      "name": "Successful Cybersecurity Services intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 6",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-06-cybersecurity.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Cybersecurity",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-007",
+      "name": "Successful ERP Transformation intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 7",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-07-erp.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to ERP",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-008",
+      "name": "Successful CRM Modernization intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 8",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-08-crm.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to CRM",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-009",
+      "name": "Successful Process Automation intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 9",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-09-process-automation.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Process automation",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-010",
+      "name": "Successful Digital Engineering intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 10",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-10-digital-engineering.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Application modernization",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-011",
+      "name": "Successful Data Governance intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 11",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-11-data-governance.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to AI and analytics",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-012",
+      "name": "Successful Modern Workplace intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 12",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-12-modern-workplace.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Infrastructure",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-013",
+      "name": "Successful Payments Modernization intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 13",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-13-payments.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Application modernization",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-014",
+      "name": "Successful Insurance Operations intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 14",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-14-insurance-operations.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Process automation",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-015",
+      "name": "Successful Healthcare Platform intake",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 15",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-15-healthcare-platform.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "COMPLETED",
+        "assertions": [
+          "run_id is a UUID",
+          "metadata.file_type is md",
+          "metadata.duplicate_of is null",
+          "classification.requirements contains at least two items",
+          "classification.categories includes or maps to Cloud migration",
+          "questionnaire is present"
+        ]
+      }
+    },
+    {
+      "id": "MR-016",
+      "name": "Duplicate replay of MR-001",
+      "method": "POST",
+      "path": "/runs",
+      "depends_on": "MR-001",
+      "request": {
+        "account": "Bank 16",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-01-cloud-migration.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "DUPLICATE",
+        "assertions": [
+          "metadata.duplicate_of equals the run_id created by MR-001",
+          "no second tracker row is appended for the same SHA-256"
+        ]
+      }
+    },
+    {
+      "id": "MR-017",
+      "name": "Empty Markdown input",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 17",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-17-empty.md"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "FAILED",
+        "error_contains": "The RFP contains no extractable text"
+      }
+    },
+    {
+      "id": "MR-018",
+      "name": "Unsupported CSV input",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 18",
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-18-unsupported.csv"
+      },
+      "expected": {
+        "http_status": 202,
+        "initial_status": "STARTED",
+        "terminal_status": "FAILED",
+        "error_contains": "Unsupported file type"
+      }
+    },
+    {
+      "id": "MR-019",
+      "name": "Missing account",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "source_url": "https://github.com/CognizantCodex/ProposalResponseOrchestration/blob/develop/sample-data/rfps/mock-01-cloud-migration.md"
+      },
+      "expected": {
+        "http_status": 400,
+        "error_contains": "account"
+      }
+    },
+    {
+      "id": "MR-020",
+      "name": "Missing source",
+      "method": "POST",
+      "path": "/runs",
+      "request": {
+        "account": "Bank 20"
+      },
+      "expected": {
+        "http_status": 400,
+        "error_contains": "account and source_url/source_path are required"
+      }
+    }
+  ]
+}
