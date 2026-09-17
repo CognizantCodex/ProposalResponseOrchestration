@@ -213,6 +213,7 @@ export default function App() {
   const [documents, setDocuments] = useState([]);
   const [documentsState, setDocumentsState] = useState("loading");
   const [agentRuns, setAgentRuns] = useState({});
+  const [receiverRun, setReceiverRun] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -256,6 +257,12 @@ export default function App() {
 
   const runAgentReceiver = (document) => {
     setAgentRuns((current) => ({ ...current, [document.sha]: "started" }));
+    setReceiverRun({
+      account,
+      documentName: document.name,
+      documentSha: document.sha,
+      startedAt: new Date().toISOString(),
+    });
     window.dispatchEvent(
       new CustomEvent("agent-receiver:run", {
         detail: { account, document },
@@ -292,8 +299,8 @@ export default function App() {
           <p>Keep account context, proposal ownership, and service-line coverage in one focused view.</p>
         </div>
         <div className="hero-stat">
-          <strong>{rfps.length}</strong>
-          <span>active RFP records</span>
+          <strong>{receiverRun ? rfps.length : 0}</strong>
+          <span>{receiverRun ? "ReceiverAgent RFP records" : "RFP records awaiting ReceiverAgent"}</span>
         </div>
       </section>
 
@@ -421,11 +428,16 @@ export default function App() {
           )}
         </section>
 
-        <section className="rfp-section" id="opportunities" aria-labelledby="rfp-heading">
+        {receiverRun && (
+          <section className="rfp-section" id="opportunities" aria-labelledby="rfp-heading">
           <div className="section-heading section-heading--plain">
             <div>
               <span className="step">03</span>
-              <div><p className="eyebrow">Secondary group</p><h2 id="rfp-heading">RFP portfolio</h2></div>
+              <div>
+                <p className="eyebrow">ReceiverAgent output</p>
+                <h2 id="rfp-heading">RFP portfolio</h2>
+                <span className="receiver-source">Created from {receiverRun.documentName}</span>
+              </div>
             </div>
             <label className="search">
               <span className="sr-only">Search RFPs</span>
@@ -444,7 +456,8 @@ export default function App() {
             ))}
             {!visibleRfps.length && <p className="empty-state">No RFPs match your search.</p>}
           </div>
-        </section>
+          </section>
+        )}
       </main>
 
       <footer id="resources">

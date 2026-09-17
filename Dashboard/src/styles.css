@@ -285,3 +285,5 @@ footer button:hover { background: #423199; }
   .rfp-commercials, .service-line-row { grid-template-columns: 1fr; }
   .offerings-field { grid-column: auto; }
 }
+
+.receiver-source { display: block; margin-top: 4px; color: #7b8396; font-size: 10px; font-weight: 500; }
