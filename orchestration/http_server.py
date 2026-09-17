@@ -12,8 +12,14 @@ from .state_store import StateStore
 
 class Handler(BaseHTTPRequestHandler):
     settings = Settings.from_env()
-    orchestrator = AgentOrchestrator(settings)
+    orchestrator = None
     store = StateStore(settings.state_dir)
+
+    @classmethod
+    def get_orchestrator(cls):
+        if cls.orchestrator is None:
+            cls.orchestrator = AgentOrchestrator(cls.settings)
+        return cls.orchestrator
 
     def _json(self, status: int, body: dict) -> None:
         raw = json.dumps(body, ensure_ascii=False).encode("utf-8")
@@ -49,7 +55,7 @@ class Handler(BaseHTTPRequestHandler):
 
         def execute():
             try:
-                self.orchestrator.run(account=account, source_path=source, run_id=run_id)
+                self.get_orchestrator().run(account=account, source_path=source, run_id=run_id)
             except Exception:
                 # The state store contains the detailed failure event.
                 pass
