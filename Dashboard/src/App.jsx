@@ -3,8 +3,15 @@ import accountListMarkdown from "../AccountList.md?raw";
 import accountsListMarkdown from "../AccountsList.md?raw";
 import rfpMarkdown from "../RFPStatus.md?raw";
 
-const serviceLines = ["DE", "QEA", "ADM"];
-const otherServiceLines = ["CIS", "AIA", "Moment", "Others"];
+const serviceLineOfferings = {
+  SEG: ["Application Engineering", "Platform Engineering", "DevSecOps", "Cloud-Native Development", "Legacy Modernization"],
+  AIA: ["Data Engineering", "AI/ML Engineering", "Business Intelligence", "Data Science", "Data Governance"],
+  CIS: ["Cloud Operations", "Infrastructure Services", "Cybersecurity", "Modern Workplace", "Service Management"],
+  IPM: ["ERP Delivery", "CRM Platforms", "Workflow Automation", "Enterprise Integration", "Process Transformation"],
+  IOT: ["Connected Products", "Industrial IoT", "Embedded Engineering", "Product Engineering", "Digital Manufacturing"],
+  ISG: ["Banking Solutions", "Insurance Solutions", "Healthcare Solutions", "Retail Solutions", "Industry Consulting"],
+  QEA: ["Test Automation", "Performance Engineering", "Quality Governance", "SDET Engineering", "Test Data & Environment"],
+};
 const businessUnits = {
   "Financial Services": [
     "Banking & Capital Markets",
@@ -66,20 +73,30 @@ function StatusPill({ status }) {
   return <span className={`status status--${status.toLowerCase().replaceAll(" ", "-")}`}>{status}</span>;
 }
 
-function RfpCard({ rfp, selection, onChange }) {
-  const selected = selection?.serviceLines || [];
-  const selectedOther = selection?.otherServiceLines || [];
-  const toggle = (line) => {
-    const next = selected.includes(line)
-      ? selected.filter((item) => item !== line)
-      : [...selected, line];
-    onChange({ ...selection, serviceLines: next });
+function RfpCard({ rfp, selection = {}, onChange }) {
+  const serviceLines = (rfp["Service Lines"] || "")
+    .split(";")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const slsNames = (rfp["SLS Names"] || "")
+    .split(";")
+    .map((value) => value.trim());
+
+  const updateServiceLine = (index, patch) => {
+    const current = selection.serviceLineDetails || [];
+    const next = serviceLines.map((_, rowIndex) => ({
+      ...(current[rowIndex] || {}),
+      ...(rowIndex === index ? patch : {}),
+    }));
+    onChange({ ...selection, serviceLineDetails: next });
   };
-  const toggleOther = (line) => {
-    const next = selectedOther.includes(line)
-      ? selectedOther.filter((item) => item !== line)
-      : [...selectedOther, line];
-    onChange({ ...selection, otherServiceLines: next });
+
+  const toggleOffering = (index, offering) => {
+    const selected = selection.serviceLineDetails?.[index]?.offerings || [];
+    const next = selected.includes(offering)
+      ? selected.filter((item) => item !== offering)
+      : [...selected, offering];
+    updateServiceLine(index, { offerings: next });
   };
 
   return (
@@ -88,50 +105,91 @@ function RfpCard({ rfp, selection, onChange }) {
         <div>
           <span className="eyebrow">RFP {String(rfp.id).padStart(2, "0")}</span>
           <h3>{rfp["RFP Name"]}</h3>
+          <span className="source-note">ReceiverAgent output</span>
         </div>
         <StatusPill status={rfp.Status} />
       </div>
 
       <p className="description">{rfp["RFP Description"]}</p>
 
-      <dl className="rfp-facts">
-        <div><dt>TCV value</dt><dd>{rfp["TCV Value"]}</dd></div>
-        <div><dt>Primary SLS POC</dt><dd>{rfp["Primary SLS POC"]}</dd></div>
-        <div><dt>Primary CRM POC</dt><dd>{rfp["Primary CRM POC"]}</dd></div>
-      </dl>
+      <div className="rfp-commercials">
+        <label className="field tcv-field">
+          <span>TCV value (USD millions)</span>
+          <span className="money-input">
+            <b>$</b>
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={selection.tcv || ""}
+              onChange={(event) => onChange({ ...selection, tcv: event.target.value })}
+              placeholder="0.0"
+            />
+            <b>M</b>
+          </span>
+        </label>
+        <div className="tracker-status">
+          <span>Status</span>
+          <strong>{rfp.Status}</strong>
+          <small>RFP_Status_Tracker.xlsx</small>
+        </div>
+      </div>
 
-      <div className="service-grid">
-        <fieldset>
-          <legend>SEG service lines</legend>
-          <div className="checkboxes">
-            {serviceLines.map((line) => (
-              <label className="check" key={line}>
+      <div className="service-lines">
+        <div className="service-lines__title">
+          <h4>Service-line assignments</h4>
+          <span>{serviceLines.length} line{serviceLines.length === 1 ? "" : "s"}</span>
+        </div>
+        {serviceLines.map((line, index) => {
+          const detail = selection.serviceLineDetails?.[index] || {};
+          const offerings = serviceLineOfferings[line] || [];
+          return (
+            <section className="service-line-row" key={`${line}-${index}`}>
+              <div className="readonly-field">
+                <span>Service Line</span>
+                <strong>{line}</strong>
+              </div>
+              <div className="readonly-field">
+                <span>SLS Name</span>
+                <strong>{slsNames[index] || "Pending assignment"}</strong>
+              </div>
+              <label className="field">
+                <span>SLS Email</span>
                 <input
-                  type="checkbox"
-                  checked={selected.includes(line)}
-                  onChange={() => toggle(line)}
+                  type="email"
+                  value={detail.email || ""}
+                  onChange={(event) => updateServiceLine(index, { email: event.target.value })}
+                  placeholder="name@cognizant.com"
                 />
-                <span>{line}</span>
               </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Other service lines</legend>
-          <div className="checkboxes checkboxes--wrap">
-            {otherServiceLines.map((line) => (
-              <label className="check" key={line}>
+              <label className="field">
+                <span>SLS Phone</span>
                 <input
-                  type="checkbox"
-                  checked={selectedOther.includes(line)}
-                  onChange={() => toggleOther(line)}
+                  type="tel"
+                  value={detail.phone || ""}
+                  onChange={(event) => updateServiceLine(index, { phone: event.target.value })}
+                  placeholder="+1"
                 />
-                <span>{line}</span>
               </label>
-            ))}
-          </div>
-        </fieldset>
+              <fieldset className="offerings-field">
+                <legend>Offerings</legend>
+                <div className="offering-options">
+                  {offerings.map((offering) => (
+                    <label className="offering-check" key={offering}>
+                      <input
+                        type="checkbox"
+                        checked={(detail.offerings || []).includes(offering)}
+                        onChange={() => toggleOffering(index, offering)}
+                      />
+                      <span>{offering}</span>
+                    </label>
+                  ))}
+                  {!offerings.length && <span className="pending-value">Pending category mapping</span>}
+                </div>
+              </fieldset>
+            </section>
+          );
+        })}
       </div>
     </article>
   );

@@ -236,3 +236,52 @@ footer button:hover { background: #423199; }
   footer { flex-wrap: wrap; padding: 20px; }
   footer button { margin-left: 0; }
 }
+
+.source-note { display: inline-block; margin-top: 5px; color: #7b8396; font-size: 10px; }
+.rfp-commercials {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin: 0 0 22px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: #f9fbfd;
+}
+.money-input {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+  border: 1px solid #cfd8e5; border-radius: 9px; overflow: hidden; background: #fff;
+}
+.money-input:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(8,119,185,.12); }
+.money-input b { padding: 0 11px; color: #566079; font-size: 12px; }
+.money-input input { border: 0 !important; border-radius: 0 !important; box-shadow: none !important; padding-inline: 0 !important; }
+.tracker-status { display: grid; align-content: center; gap: 5px; }
+.tracker-status span, .readonly-field span {
+  color: #7b8396; text-transform: uppercase; font-size: 10px; letter-spacing: .7px; font-weight: 750;
+}
+.tracker-status strong { font-size: 14px; }
+.tracker-status small { color: #8a92a3; font-size: 10px; }
+.service-lines { display: grid; gap: 12px; }
+.service-lines__title { display: flex; justify-content: space-between; align-items: center; }
+.service-lines__title h4 { margin: 0; font-size: 15px; }
+.service-lines__title > span { color: #7b8396; font-size: 11px; }
+.service-line-row {
+  display: grid; grid-template-columns: .7fr 1fr 1fr .75fr 2.2fr;
+  gap: 14px; align-items: start; padding: 16px;
+  border: 1px solid #e0e7ef; border-radius: 10px; background: #fbfcfe;
+}
+.readonly-field { display: grid; gap: 8px; padding-top: 2px; }
+.readonly-field strong { font-size: 13px; line-height: 1.35; }
+.offerings-field { min-width: 0; }
+.offering-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.offering-check { cursor: pointer; position: relative; }
+.offering-check input { position: absolute; opacity: 0; }
+.offering-check span {
+  display: block; padding: 7px 9px; border: 1px solid #cfd8e5; border-radius: 999px;
+  color: #535b70; background: #fff; font-size: 10px; font-weight: 650;
+}
+.offering-check input:checked + span { color: #fff; border-color: #3f2b9f; background: linear-gradient(135deg, #4f29a3, #147fae); }
+.offering-check input:focus-visible + span { box-shadow: 0 0 0 3px rgba(8,119,185,.18); }
+.pending-value { color: #8a92a3; font-size: 11px; }
+@media (max-width: 1080px) {
+  .service-line-row { grid-template-columns: 1fr 1fr; }
+  .offerings-field { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .rfp-commercials, .service-line-row { grid-template-columns: 1fr; }
+  .offerings-field { grid-column: auto; }
+}
