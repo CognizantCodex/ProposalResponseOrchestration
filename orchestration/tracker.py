@@ -27,25 +27,33 @@ class ExcelTracker:
 
     def find_by_hash(self, digest: str) -> str | None:
         workbook = self._load()
-        sheet = workbook["RFP Progress"]
-        for row in sheet.iter_rows(min_row=2, values_only=True):
-            if row[4] == digest and row[6] != "FAILED":
-                return str(row[0])
-        return None
+        try:
+            sheet = workbook["RFP Progress"]
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                if row[4] == digest and row[6] != "FAILED":
+                    return str(row[0])
+            return None
+        finally:
+            workbook.close()
 
     def insert(self, values: dict[str, Any]) -> None:
         workbook = self._load()
-        sheet = workbook["RFP Progress"]
-        sheet.append([values.get(header, "") for header in HEADERS])
-        workbook.save(self.path)
+        try:
+            sheet = workbook["RFP Progress"]
+            sheet.append([values.get(header, "") for header in HEADERS])
+            workbook.save(self.path)
+        finally:
+            workbook.close()
 
     def update(self, run_id: str, *, status: str, agent: str, error: str = "") -> None:
         workbook = self._load()
-        sheet = workbook["RFP Progress"]
-        for row in sheet.iter_rows(min_row=2):
-            if str(row[0].value) == run_id:
-                row[6].value, row[7].value, row[9].value = status, agent, error
-                workbook.save(self.path)
-                return
-
+        try:
+            sheet = workbook["RFP Progress"]
+            for row in sheet.iter_rows(min_row=2):
+                if str(row[0].value) == run_id:
+                    row[6].value, row[7].value, row[9].value = status, agent, error
+                    workbook.save(self.path)
+                    return
+        finally:
+            workbook.close()
 

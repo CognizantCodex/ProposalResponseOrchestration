@@ -17,14 +17,16 @@ def read_sls_reference(markdown_path: Path, employee_master_path: Path) -> str:
     if not employee_master_path.is_file():
         return "No SLS reference supplied. Return UNASSIGNED owners."
     workbook = load_workbook(employee_master_path, read_only=True, data_only=True)
-    lines: list[str] = []
-    for sheet in workbook.worksheets:
-        rows = sheet.iter_rows(values_only=True)
-        headers = next(rows, None)
-        if not headers:
-            continue
-        lines.append(" | ".join(str(value or "") for value in headers))
-        lines.extend(" | ".join(str(value or "") for value in row) for row in rows)
-    return "\n".join(lines)
-
+    try:
+        lines: list[str] = []
+        for sheet in workbook.worksheets:
+            rows = sheet.iter_rows(values_only=True)
+            headers = next(rows, None)
+            if not headers:
+                continue
+            lines.append(" | ".join(str(value or "") for value in headers))
+            lines.extend(" | ".join(str(value or "") for value in row) for row in rows)
+        return "\n".join(lines)
+    finally:
+        workbook.close()
 
