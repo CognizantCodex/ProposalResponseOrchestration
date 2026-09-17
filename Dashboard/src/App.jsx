@@ -5,6 +5,17 @@ import rfpMarkdown from "../RFPStatus.md?raw";
 
 const serviceLines = ["DE", "QEA", "ADM"];
 const otherServiceLines = ["CIS", "AIA", "Moment", "Others"];
+const businessUnits = {
+  "Financial Services": [
+    "Banking & Capital Markets",
+    "Cards & Payments",
+    "Consumer Lending",
+  ],
+  Insurance: ["Life & Annuities", "Property & Casualty", "Insurance Operations"],
+  Healthcare: ["Payer", "Provider", "Life Sciences"],
+  "Consumer & Retail": ["Retail & Consumer Goods", "Travel & Hospitality"],
+  "Communications & Technology": ["Communications", "Media", "Technology"],
+};
 const documentsApiBase =
   "https://api.github.com/repos/CognizantCodex/ProposalResponseOrchestration/contents/Customer%20RFP%20Documentation";
 const documentsWebBase =
@@ -132,6 +143,8 @@ export default function App() {
     [],
   );
   const rfps = useMemo(() => parseTable(rfpMarkdown), []);
+  const [bu, setBu] = useState(Object.keys(businessUnits)[0]);
+  const [sbu, setSbu] = useState(businessUnits[Object.keys(businessUnits)[0]][0]);
   const [account, setAccount] = useState(accounts[0] || "");
   const [winzoneId, setWinzoneId] = useState("");
   const [query, setQuery] = useState("");
@@ -168,6 +181,12 @@ export default function App() {
     return () => controller.abort();
   }, [account]);
 
+  const handleBuChange = (event) => {
+    const nextBu = event.target.value;
+    setBu(nextBu);
+    setSbu(businessUnits[nextBu][0]);
+  };
+
   const visibleRfps = rfps.filter((rfp) =>
     [rfp["RFP Name"], rfp["RFP Description"], rfp.Status]
       .join(" ")
@@ -185,7 +204,7 @@ export default function App() {
   };
 
   const saveDraft = () => {
-    const payload = { account, winzoneId, choices, savedAt: new Date().toISOString() };
+    const payload = { bu, sbu, account, winzoneId, choices, savedAt: new Date().toISOString() };
     localStorage.setItem("bcm-sls-rfp-draft", JSON.stringify(payload));
     setNotice("Draft saved in this browser.");
     window.setTimeout(() => setNotice(""), 2800);
@@ -229,6 +248,20 @@ export default function App() {
           </div>
 
           <div className="account-fields">
+            <label className="field">
+              <span>BU</span>
+              <select value={bu} onChange={handleBuChange} required>
+                {Object.keys(businessUnits).map((name) => <option key={name}>{name}</option>)}
+              </select>
+            </label>
+
+            <label className="field">
+              <span>SBU</span>
+              <select value={sbu} onChange={(event) => setSbu(event.target.value)} required>
+                {businessUnits[bu].map((name) => <option key={name}>{name}</option>)}
+              </select>
+            </label>
+
             <label className="field">
               <span>Account name</span>
               <select value={account} onChange={(event) => setAccount(event.target.value)} required>
