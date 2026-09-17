@@ -117,7 +117,7 @@ main { max-width: 1240px; margin: -22px auto 0; padding: 0 24px 70px; position: 
 }
 .required-note { color: #7b8396; font-size: 12px; }
 
-.account-fields { display: grid; grid-template-columns: 1fr 1.25fr 1.1fr .7fr .7fr .85fr; gap: 14px; align-items: start; }
+.account-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; align-items: start; }
 .field { display: grid; gap: 8px; color: #31314e; font-size: 13px; font-weight: 650; }
 .field select, .field input, .search input {
   width: 100%;
@@ -165,7 +165,7 @@ main { max-width: 1240px; margin: -22px auto 0; padding: 0 24px 70px; position: 
 }
 .document-row .agent-button:hover:not(:disabled) { background: #423199; }
 .document-row .agent-button:disabled { cursor: default; background: #7b8396; }
-.agent-status { color: #1d7b4d !important; font-weight: 750; }
+.agent-status { color: #1d7b4d !important; font-weight: 750; }\n.agent-status--error { color: #b42318 !important; }\n.inferred-offerings { margin: 12px 0 18px; padding: 10px 13px; border-left: 3px solid var(--cyan); background: #f2fbfc; color: #44506a; font-size: 13px; }
 
 .rfp-section { padding-top: 52px; }
 .section-heading--plain { padding: 0 4px; }

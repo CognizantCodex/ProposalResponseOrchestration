@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import accountListMarkdown from "../AccountList.md?raw";
 import accountsListMarkdown from "../AccountsList.md?raw";
 import rfpMarkdown from "../RFPStatus.md?raw";
+import cpMarkdown from "../../CP_POC.md?raw";
+import slsMarkdown from "../../SLS_POC.md?raw";
+import categoryMarkdown from "../../catagory.md?raw";
+import frontierMarkdown from "../../FrontierModels.md?raw";
 
 const serviceLineOfferings = {
   SEG: ["Application Engineering", "Platform Engineering", "DevSecOps", "Cloud-Native Development", "Legacy Modernization"],
@@ -69,6 +73,21 @@ function parseTable(markdown) {
   });
 }
 
+function inferOfferings(rfp) {
+  const haystack = `${rfp["RFP Name"] || ""} ${rfp["RFP Description"] || ""}`.toLowerCase();
+  const categoryReference = categoryMarkdown.toLowerCase();
+  const rules = [
+    ["Application modernization", ["moderniz", "legacy", "java", "core banking", "application"]],
+    ["Cloud migration", ["cloud", "migration", "platform", "infrastructure"]],
+    ["QEA automation", ["quality", "testing", "test", "automation", "performance"]],
+    ["AI and analytics", ["data", "ai", "analytics", "decision"]],
+    ["Infrastructure and security", ["security", "operations", "sla", "managed"]],
+    ["Enterprise platforms", ["erp", "crm", "integration", "servicing"]],
+  ];
+  const matched = rules.filter(([, keys]) => keys.some((key) => haystack.includes(key))).map(([name]) => name);
+  return matched.length ? matched : (categoryReference ? ["Review against catagory.md"] : ["Category mapping pending"]);
+}
+
 function StatusPill({ status }) {
   return <span className={`status status--${status.toLowerCase().replaceAll(" ", "-")}`}>{status}</span>;
 }
@@ -78,6 +97,7 @@ function RfpCard({ rfp, selection = {}, onChange }) {
     .split(";")
     .map((value) => value.trim())
     .filter(Boolean);
+  const inferredOfferings = inferOfferings(rfp);
   const slsNames = (rfp["SLS Names"] || "")
     .split(";")
     .map((value) => value.trim());
@@ -111,6 +131,7 @@ function RfpCard({ rfp, selection = {}, onChange }) {
       </div>
 
       <p className="description">{rfp["RFP Description"]}</p>
+      <p className="inferred-offerings"><strong>Inferred offerings:</strong> {inferredOfferings.join(", ")}</p>
 
       <div className="rfp-commercials">
         <label className="field tcv-field">
@@ -196,17 +217,27 @@ function RfpCard({ rfp, selection = {}, onChange }) {
 }
 
 export default function App() {
-  const accounts = useMemo(
-    () => [...new Set([...parseList(accountListMarkdown), ...parseList(accountsListMarkdown)])],
-    [],
-  );
   const rfps = useMemo(() => parseTable(rfpMarkdown), []);
+  const cpPocs = useMemo(() => parseTable(cpMarkdown), []);
+  const slsPocs = useMemo(() => parseTable(slsMarkdown), []);
+  const frontierRows = useMemo(() => parseTable(frontierMarkdown), []);
+  const statusOptions = useMemo(() => [...new Set(rfps.map((row) => row.Status).filter(Boolean))], [rfps]);
+  const modelByAccount = useMemo(() => frontierRows.reduce((result, row) => {
+    result[row.Account] = (row["Primary Frontier Models"] || "").split(",").map((model) => model.trim()).filter(Boolean);
+    return result;
+  }, {}), [frontierRows]);
+  const accounts = useMemo(
+    () => [...new Set([...parseList(accountListMarkdown), ...parseList(accountsListMarkdown), ...frontierRows.map((row) => row.Account)])],
+    [frontierRows],
+  );
   const [bu, setBu] = useState(Object.keys(businessUnits)[0]);
   const [sbu, setSbu] = useState(businessUnits[Object.keys(businessUnits)[0]][0]);
   const [account, setAccount] = useState(accounts[0] || "");
   const [cp, setCp] = useState("");
   const [crm, setCrm] = useState("");
-  const [winzoneId, setWinzoneId] = useState("");
+  const [rfpStatus, setRfpStatus] = useState(statusOptions[0] || "In Review");
+  const [slsEmail, setSlsEmail] = useState("");
+  const [frontierModel, setFrontierModel] = useState("");
   const [query, setQuery] = useState("");
   const [choices, setChoices] = useState({});
   const [notice, setNotice] = useState("");
@@ -214,6 +245,12 @@ export default function App() {
   const [documentsState, setDocumentsState] = useState("loading");
   const [agentRuns, setAgentRuns] = useState({});
   const [receiverRun, setReceiverRun] = useState(null);
+
+  useEffect(() => {
+    const models = modelByAccount[account] || [];
+    setFrontierModel(models[0] || "Not configured");
+    setSlsEmail(slsPocs[0]?.Email || "");
+  }, [account, modelByAccount, slsPocs]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -256,22 +293,24 @@ export default function App() {
   );
 
   const runAgentReceiver = (document) => {
+    const apiBase = import.meta.env.VITE_AGENT_API_BASE || "";
     setAgentRuns((current) => ({ ...current, [document.sha]: "started" }));
-    setReceiverRun({
-      account,
-      documentName: document.name,
-      documentSha: document.sha,
-      startedAt: new Date().toISOString(),
-    });
-    window.dispatchEvent(
-      new CustomEvent("agent-receiver:run", {
-        detail: { account, document },
-      }),
-    );
+    setReceiverRun({ account, documentName: document.name, documentSha: document.sha, startedAt: new Date().toISOString() });
+    if (apiBase) {
+      fetch(`${apiBase.replace(/\/$/, "")}/runs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ account, source_url: document.html_url }),
+      }).then((response) => {
+        if (!response.ok) throw new Error("Receiver API request failed");
+        return response.json();
+      }).catch(() => setAgentRuns((current) => ({ ...current, [document.sha]: "error" })));
+    }
+    window.dispatchEvent(new CustomEvent("agent-receiver:run", { detail: { account, document } }));
   };
 
   const saveDraft = () => {
-    const payload = { bu, sbu, account, cp, crm, winzoneId, choices, savedAt: new Date().toISOString() };
+    const payload = { bu, sbu, account, cp, crm, rfpStatus, slsEmail, frontierModel, choices, savedAt: new Date().toISOString() };
     localStorage.setItem("bcm-sls-rfp-draft", JSON.stringify(payload));
     setNotice("Draft saved in this browser.");
     window.setTimeout(() => setNotice(""), 2800);
@@ -338,12 +377,10 @@ export default function App() {
 
             <label className="field">
               <span>CP</span>
-              <input
-                type="text"
-                value={cp}
-                onChange={(event) => setCp(event.target.value)}
-                placeholder="Enter CP"
-              />
+              <select value={cp} onChange={(event) => setCp(event.target.value)} required>
+                <option value="">Select CP</option>
+                {cpPocs.map((row) => <option key={row.id} value={row["CP Name"]}>{row["CP Name"]}</option>)}
+              </select>
             </label>
 
             <label className="field">
@@ -357,17 +394,25 @@ export default function App() {
             </label>
 
             <label className="field">
-              <span>Winzone ID</span>
-              <input
-                type="number"
-                inputMode="numeric"
-                min="0"
-                step="1"
-                value={winzoneId}
-                onChange={(event) => setWinzoneId(event.target.value)}
-                placeholder="Enter Winzone ID"
-              />
-              <small>Validation will be connected in a later release.</small>
+              <span>RFP status</span>
+              <select value={rfpStatus} onChange={(event) => setRfpStatus(event.target.value)} required>
+                {statusOptions.map((status) => <option key={status}>{status}</option>)}
+              </select>
+              <small>Winzone integration pending.</small>
+            </label>
+
+            <label className="field">
+              <span>SLS email</span>
+              <select value={slsEmail} onChange={(event) => setSlsEmail(event.target.value)} required>
+                {slsPocs.map((row) => <option key={row.id} value={row.Email}>{row.Email}</option>)}
+              </select>
+            </label>
+
+            <label className="field">
+              <span>Frontier model</span>
+              <select value={frontierModel} onChange={(event) => setFrontierModel(event.target.value)} required>
+                {(modelByAccount[account] || ["Not configured"]).map((model) => <option key={model}>{model}</option>)}
+              </select>
             </label>
           </div>
         </section>
@@ -409,9 +454,10 @@ export default function App() {
                     <strong>{document.name}</strong>
                     <span>{formatBytes(document.size)} · Customer RFP Documentation</span>
                     {agentRuns[document.sha] && (
-                      <span className="agent-status" role="status">Agent Receiver started</span>
+                      <span className={`agent-status${agentRuns[document.sha] === "error" ? " agent-status--error" : ""}`} role="status">{agentRuns[document.sha] === "error" ? "Receiver validation failed" : "Receiver event sent"}</span>
                     )}
                   </div>
+                  <a href={document.html_url} target="_blank" rel="noreferrer">View file</a>
                   <a className="download-link" href={document.download_url} target="_blank" rel="noreferrer">Download</a>
                   <button
                     className="agent-button"

@@ -48,8 +48,8 @@ class AgentOrchestrator:
         assert last_error is not None
         raise last_error
 
-    def run(self, *, account: str, source_path: Path) -> PipelineState:
-        run_id = str(uuid4())
+    def run(self, *, account: str, source_path: Path | str, run_id: str | None = None) -> PipelineState:
+        run_id = run_id or str(uuid4())
         state = PipelineState(run_id=run_id, account=account, source_path=str(source_path))
         state.event("orchestrator", "STARTED", "Pipeline created")
         self.store.save(state)
@@ -90,5 +90,4 @@ class AgentOrchestrator:
             self.tracker.update(run_id, status="FAILED", agent=state.current_agent, error=str(exc))
             self.store.save(state)
             raise
-
 
