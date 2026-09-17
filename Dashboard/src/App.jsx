@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import accountListMarkdown from "../AccountList.md?raw";
 import accountsListMarkdown from "../AccountsList.md?raw";
 import rfpMarkdown from "../RFPStatus.md?raw";
-import cpMarkdown from "../../CP_POC.md?raw";
-import slsMarkdown from "../../SLS_POC.md?raw";
-import categoryMarkdown from "../../catagory.md?raw";
-import frontierMarkdown from "../../FrontierModels.md?raw";
+import cpMarkdown from "../CP_POC.md?raw";
+import slsMarkdown from "../SLS_POC.md?raw";
+import categoryMarkdown from "../catagory.md?raw";
+import frontierMarkdown from "../FrontierModels.md?raw";
 
 const serviceLineOfferings = {
   SEG: ["Application Engineering", "Platform Engineering", "DevSecOps", "Cloud-Native Development", "Legacy Modernization"],
