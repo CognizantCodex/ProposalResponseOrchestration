@@ -21,13 +21,17 @@ class OrchestratorTest(unittest.TestCase):
             root = Path(temporary)
             source = root / "sample.md"
             source.write_text("Provide a phased cloud migration plan.", encoding="utf-8")
-            settings = Settings(tracker_path=root / "tracker.xlsx", state_dir=root / "runs", category_path=root / "category.md", sls_contact_path=root / "contacts.md", employee_master_path=root / "employees.xlsx", max_agent_retries=0)
+            settings = Settings(tracker_path=root / "tracker.xlsx", state_dir=root / "runs", category_path=root / "category.md", sls_contact_path=root / "contacts.md", employee_master_path=root / "employees.xlsx", customer_rfp_root=root / "Customer RFP Documentation", max_agent_retries=0)
             orchestrator = AgentOrchestrator(settings, llm=FakeLlm())
-            completed = orchestrator.run(account="WellsFargo", source_path=source)
+            completed = orchestrator.run(account="Bank 1", source_path=source)
             self.assertEqual("COMPLETED", completed.status)
-            duplicate = orchestrator.run(account="WellsFargo", source_path=source)
+            workspace = root / "Customer RFP Documentation" / "Bank 1" / "sample"
+            for folder in ("Case Study and Reference", "Customer Documents", "Pricing", "Questionnaire", "Response", "TO"):
+                self.assertTrue((workspace / folder).is_dir())
+            duplicate = orchestrator.run(account="Bank 1", source_path=source)
             self.assertEqual("DUPLICATE", duplicate.status)
             self.assertIsNotNone(duplicate.metadata["duplicate_of"])
+            self.assertTrue(workspace.is_dir())
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 from hashlib import sha256
 from pathlib import Path
+import re
 from tempfile import NamedTemporaryFile
 from urllib.parse import unquote, urlparse
 from urllib.request import Request, urlopen
@@ -16,8 +17,11 @@ class DuplicateRfpError(RuntimeError):
 
 
 class ReceiverAgent:
-    def __init__(self, tracker: ExcelTracker):
+    WORKSPACE_SUBFOLDERS = ("Case Study and Reference", "Customer Documents", "Pricing", "Questionnaire", "Response", "TO")
+
+    def __init__(self, tracker: ExcelTracker, customer_rfp_root: Path | str = Path("Customer RFP Documentation")):
         self.tracker = tracker
+        self.customer_rfp_root = Path(customer_rfp_root)
 
     def run(self, *, run_id: str, account: str, source_path: Path | str) -> tuple[RfpMetadata, str]:
         source_ref = str(source_path)
@@ -54,9 +58,22 @@ class ReceiverAgent:
                 temporary.unlink(missing_ok=True)
             raise DuplicateRfpError(metadata)
         self.tracker.insert({"Run ID": run_id, "Account": account, "File Name": metadata.file_name, "Source Path": source_ref, "SHA-256": digest, "Received At": metadata.ingested_at, "Status": "VALIDATED", "Current Agent": "receiver", "Duplicate Of": "", "Error": ""})
+        self.create_customer_workspace(account=account, metadata=metadata)
         if temporary:
             temporary.unlink(missing_ok=True)
         return metadata, text
+
+    def create_customer_workspace(self, *, account: str, metadata: RfpMetadata) -> Path | None:
+        """Create the per-RFP collaboration folders for Bank 1 after intake."""
+        normalized = re.sub(r"\s+", "", account).casefold()
+        if normalized != "bank1":
+            return None
+        folder_name = re.sub(r'[<>:"/\\|?*]', "-", Path(metadata.file_name).stem).strip(" .") or "Untitled RFP"
+        workspace = self.customer_rfp_root / "Bank 1" / folder_name
+        workspace.mkdir(parents=True, exist_ok=True)
+        for child in self.WORKSPACE_SUBFOLDERS:
+            (workspace / child).mkdir(exist_ok=True)
+        return workspace
 
     @staticmethod
     def _raw_github_url(url: str) -> str:

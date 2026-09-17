@@ -22,6 +22,8 @@ python -m orchestration.cli --account WellsFargo --file "RFP/WellsFargo/sample-r
 
 The run writes `data/RFP_Status_Tracker.xlsx` and one JSON state file under `data/runs/`. The ReceiverAgent also accepts a GitHub blob URL (for example, the Bank 1 DOCX on the `develop` branch). To expose the dashboard event bridge, run `python -m orchestration.http_server --port 8000` and set the dashboard's `VITE_AGENT_API_BASE` to that URL.
 
+For a validated `Bank 1` intake, ReceiverAgent creates `Customer RFP Documentation/Bank 1/<RFP name>/` with `Case Study and Reference`, `Customer Documents`, `Pricing`, `Questionnaire`, `Response`, and `TO` subfolders. Replays are rejected before creating or changing a workspace.
+
 ## Safety and review boundary
 
 Outputs are working drafts. Human owners must review requirement coverage, ownership, evidence, commercial terms, and all customer commitments before anything is shared or submitted.

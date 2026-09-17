@@ -26,7 +26,7 @@ class AgentOrchestrator:
         self.tracker = ExcelTracker(self.settings.tracker_path)
         self.store = StateStore(self.settings.state_dir)
         self.llm = llm or OpenAIJsonClient(self.settings.model)
-        self.receiver = ReceiverAgent(self.tracker)
+        self.receiver = ReceiverAgent(self.tracker, customer_rfp_root=self.settings.customer_rfp_root)
         self.classifier = ClassifierAgent(self.llm)
         self.requirement_agent = RequirementAgent(self.llm)
         self.questionnaire = QuestionnaireAgent(self.llm)

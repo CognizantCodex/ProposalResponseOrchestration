@@ -8,6 +8,7 @@ from pathlib import Path
 @dataclass(frozen=True)
 class Settings:
     rfp_root: Path = Path("RFP")
+    customer_rfp_root: Path = Path("Customer RFP Documentation")
     tracker_path: Path = Path("data/RFP_Status_Tracker.xlsx")
     state_dir: Path = Path("data/runs")
     category_path: Path = Path("knowledge/category.md")
@@ -20,6 +21,7 @@ class Settings:
     def from_env(cls) -> "Settings":
         return cls(
             rfp_root=Path(os.getenv("RFP_ROOT", "RFP")),
+            customer_rfp_root=Path(os.getenv("CUSTOMER_RFP_ROOT", "Customer RFP Documentation")),
             tracker_path=Path(os.getenv("RFP_TRACKER_PATH", "data/RFP_Status_Tracker.xlsx")),
             state_dir=Path(os.getenv("RFP_STATE_DIR", "data/runs")),
             category_path=Path(os.getenv("CATEGORY_PATH", "knowledge/category.md")),
